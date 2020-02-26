@@ -2,8 +2,7 @@ extern crate rusted_cypher;
 
 use rusted_cypher::GraphClient;
 use rusted_cypher::error::GraphError;
-use std::process::Command;
-use std::io::{self, Write};
+use std::io::{stdin,stdout,Write};
 
 
 fn main() {
@@ -17,12 +16,45 @@ fn main() {
         Err(e) => panic!("Error: {}", e),
     };
 
-    // let labels = get_labels(&graph);
-    // for label in labels {
-    //     println!("{}", label);
-    // }
-    // print_all(&graph, &labels);
-    print_info(&graph);
+    let mut choice = prompt();
+    let labels = get_labels(&graph);
+    loop {
+        println!();
+        match choice.as_str() {
+            "1\n" => print_all(&graph, &labels),
+            "2\n" => println!("lol no"),
+            "3\n" => print_info(&graph),
+            "4\n" => {  println!();
+                        for label in &labels {
+                            println!("{}", label);
+                        }
+                    },
+            "5\n" => println!("lol no"),
+            "q\n" => break,
+            _ => println!("try again"),
+        };
+        choice = prompt();
+    }
+}
+
+fn prompt() -> String {
+    let mut input = String::new();
+    println!("What would you like to do?");
+    println!("1: Print all nodes in graph(Not pretty)");
+    println!("2: Create new node");
+    println!("3: Print graph metadata");
+    println!("4: Print available graph labels");
+    println!("5: Custom query");
+    println!("q: quit");
+    let _= stdout().flush();
+    loop {
+        match stdin().read_line(&mut input) {
+            Ok(n) => {
+                return input;
+            },
+            Err(e) => println!("Failed getting input, type an int"),
+        };
+    }
 }
 
 fn print_info(graph: &Result<GraphClient, GraphError>) {
